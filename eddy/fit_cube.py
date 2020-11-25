@@ -334,7 +334,7 @@ class rotationmap:
         Natural log of the prior probability.
         """
         if minval <= p <= maxval:
-            return np.log(1.0 / (maxval - minval)
+            return np.log(1.0 / (maxval - minval))
         else:
             return -np.inf
 
@@ -660,7 +660,7 @@ class rotationmap:
                 elif prior['type'] == 'sin':
                     lnp += self._sin_prior(params[key])
                 else:
-                    raise ValueError('Unknown type of prior: {}.'.format(prior['type'])
+                    raise ValueError('Unknown type of prior: {}.'.format(prior['type']))
                                          
                 if not np.isfinite(lnp):
                     return lnp
