@@ -598,7 +598,7 @@ class rotationmap:
         # Basic Geometry.
         self.set_prior('x0', [-0.5, 0.5], 'flat')
         self.set_prior('y0', [-0.5, 0.5], 'flat')
-        self.set_prior('inc', [-90.0, 90.0], 'flat')
+        self.set_prior('inc', [], 'sin')
         self.set_prior('PA', [-360.0, 360.0], 'flat')
         self.set_prior('mstar', [0.1, 5.0], 'flat')
         self.set_prior('vlsr', [np.nanmin(self.data) * 1e3,
