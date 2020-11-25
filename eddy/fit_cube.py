@@ -41,7 +41,6 @@ class rotationmap:
     msun = 1.988e30
     fwhm = 2. * np.sqrt(2 * np.log(2))
     disk_coords_niter = 5
-    priors = {}
 
     def __init__(self, path, uncertainty=None, FOV=None, downsample=None,
                  x0=0.0, y0=0.0, unit='m/s', clip=None):
@@ -101,6 +100,7 @@ class rotationmap:
         self.vlsr = np.nanmedian(self.data)
 
         # Set priors.
+        self.priors = {}
         self._set_default_priors()
 
         # Set the defaults for 'shadowed' emission surfaces.
