@@ -629,7 +629,17 @@ class rotationmap:
         lnp = 0.0
         for key in params.keys():
             if key in rotationmap.priors.keys():
-                lnp += rotationmap.priors[key](params[key])
+                prior = rotationmap.priors[key]
+                args = prior['args']
+                if prior['type'] == 'flat':
+                    lnp += self._flat_prior(params[key], args[0], args[1])
+                elif prior['type'] == 'gaussian':
+                    lnp += self._gaussian_prior(params[key], args[0], args[1])
+                elif prior['type'] == 'sin':
+                    lnp += self._sin_prior(params[key])
+                else:
+                    raise ValueError('Unknown type of prior: {}.'.format(prior['type'])
+                                         
                 if not np.isfinite(lnp):
                     return lnp
         return lnp
