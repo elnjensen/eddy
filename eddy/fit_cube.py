@@ -341,10 +341,18 @@ class rotationmap:
         
     def set_prior(self, param, args, type='flat'):
         """
-        Set the prior for the given parameter. There are three types of priors
-        currently usable, ``'flat'`` which requires ``args=[min, max]`` while
-        for ``'gaussian'`` you need to specify ``args=[mu, sig]``. The ``'sin'``
-        prior takes no extra arguments, so pass ``args=[]``.
+        Set the prior for the given parameter. There are four types
+        of priors currently usable, ``'flat'`` which requires
+        ``args=[min, max]`` while for ``'gaussian'`` you need to specify
+        ``args=[mu, sig]``. The ``'sin'`` prior takes no extra
+        arguments, so pass ``args=[]``.  For custom priors, use
+        ``'user'`` as the type, and pass a callable function as the
+        first argument in the ``args`` array and a dictionary of keyword
+        args as the second element. Your function should take the value
+        to be tested as its first argument, and the others as named
+        arguments corresponding to your dictionary, and should return the
+        natural logarithm of the prior probability, or -np.inf for zero
+        probability (e.g. value is out of the allowed range).
 
         Args:
             param (str): Name of the parameter.
@@ -352,9 +360,10 @@ class rotationmap:
             type (optional[str]): Type of prior to use.
         """
         type = type.lower()
-        # Consider adding an option for passing a user-defined function here? 
-        if type not in ['flat', 'gaussian', 'sin']:
-            raise ValueError("type must be 'flat', 'gaussian', or 'sin'.")        
+        if type not in ['flat', 'gaussian', 'sin', 'user']:
+            raise ValueError("type must be 'flat', 'gaussian', 'sin', or 'user'.")
+        if type == 'user' and not callable(args[0]):
+            raise ValueError("First argument for 'user' priors must be a callable function.")
         self.priors[param] = {"type": type, "args": args}
 
         
@@ -640,6 +649,8 @@ class rotationmap:
                     lnp += self._gaussian_prior(params[key], args[0], args[1])
                 elif prior['type'] == 'sin':
                     lnp += self._sin_prior(params[key])
+                elif prior['type'] == 'user':
+                    lnp += args[0](params[key], **args[1])
                 else:
                     raise ValueError('Unknown type of prior: {}.'.format(prior['type']))
                                          
