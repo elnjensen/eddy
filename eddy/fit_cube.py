@@ -279,6 +279,7 @@ class rotationmap:
         self.shadowed = False
         return to_return if len(to_return) > 1 else to_return[0]
 
+    @staticmethod
     def _gaussian_prior(p, mu, sigma):
         """
         Gaussian prior function.
@@ -298,6 +299,7 @@ class rotationmap:
         gauss_arg = -0.5 * ((p - mu)/sigma)**2
         return lognorm + gauss_arg
 
+    @staticmethod
     def _flat_prior(p, minval, maxval): 
         """
         Flat prior function - constant probability within the range,
@@ -316,6 +318,7 @@ class rotationmap:
         else:
             return -np.inf
 
+    @staticmethod
     def _sin_prior(p): 
         """
         Sin prior function - probability proportional to the 
@@ -352,7 +355,7 @@ class rotationmap:
         # Consider adding an option for passing a user-defined function here? 
         if type not in ['flat', 'gaussian', 'sin']:
             raise ValueError("type must be 'flat', 'gaussian', or 'sin'.")        
-        rotationmap.priors[param] = {"type": type, "args": args}
+        self.priors[param] = {"type": type, "args": args}
 
         
     def disk_coords(self, x0=0.0, y0=0.0, inc=0.0, PA=0.0, z0=0.0, psi=0.0,
@@ -628,8 +631,8 @@ class rotationmap:
         """Log-priors."""
         lnp = 0.0
         for key in params.keys():
-            if key in rotationmap.priors.keys():
-                prior = rotationmap.priors[key]
+            if key in self.priors.keys():
+                prior = self.priors[key]
                 args = prior['args']
                 if prior['type'] == 'flat':
                     lnp += self._flat_prior(params[key], args[0], args[1])
