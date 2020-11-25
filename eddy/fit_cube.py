@@ -279,11 +279,69 @@ class rotationmap:
         self.shadowed = False
         return to_return if len(to_return) > 1 else to_return[0]
 
+    def _gaussian_prior(p, mu, sigma):
+        """
+        Gaussian prior function.
+
+        Args: 
+           p:  Value of the current parameter 
+           mu: Mean of the gaussian. 
+           sigma: standard deviation of the Gaussian. 
+
+        Returns:
+           Natural log of the prior probability.
+        """
+        # Natural log of the Gaussian normalization: 
+        lognorm = np.log(np.sqrt(2. * np.pi) * sigma)
+        # Argument of the Gaussian - we don't exponentiate this because we
+        # want to take the natural log of it anyway:
+        gauss_arg = -0.5 * ((p - mu)/sigma)**2
+        return lognorm + gauss_arg
+
+    def _flat_prior(p, minval, maxval): 
+        """
+        Flat prior function - constant probability within the range,
+        0 outside that range.
+
+        Args: 
+        p:  Value of the current parameter 
+        minval: Minimum of allowed range. 
+        maxval: Minimum of allowed range. 
+
+        Returns:
+        Natural log of the prior probability.
+        """
+        if minval <= p <= maxval:
+            return np.log(1.0 / (maxval - minval)
+        else:
+            return -np.inf
+
+    def _sin_prior(p): 
+        """
+        Sin prior function - probability proportional to the 
+        sin of the angle, suitable for the inclination of a disk
+        assuming random orientations.  Normalization assumes that
+        allowed values of the angle in question cover 180 degrees. 
+
+        Args: 
+        p:  Value of the current parameter, assumed to be an angle 
+            in degrees. 
+
+        Returns:
+        Natural log of the prior probability.
+        """
+        if p == 0:
+            return -np.inf
+        else:
+            return np.log(0.5*np.abs(np.sin(np.radians(p))))
+        
+        
     def set_prior(self, param, args, type='flat'):
         """
-        Set the prior for the given parameter. There are two types of priors
+        Set the prior for the given parameter. There are three types of priors
         currently usable, ``'flat'`` which requires ``args=[min, max]`` while
-        for ``'gaussian'`` you need to specify ``args=[mu, sig]``.
+        for ``'gaussian'`` you need to specify ``args=[mu, sig]``. The ``'sin'``
+        prior takes no extra arguments, so pass ``args=[]``.
 
         Args:
             param (str): Name of the parameter.
@@ -291,19 +349,12 @@ class rotationmap:
             type (optional[str]): Type of prior to use.
         """
         type = type.lower()
-        if type not in ['flat', 'gaussian']:
-            raise ValueError("type must be 'flat' or 'gaussian'.")
-        if type == 'flat':
-            def prior(p):
-                if not min(args) <= p <= max(args):
-                    return -np.inf
-                return np.log(1.0 / (args[1] - args[0]))
-        else:
-            def prior(p):
-                lnp = np.exp(-0.5 * ((args[0] - p) / args[1])**2)
-                return np.log(lnp / np.sqrt(2. * np.pi) / args[1])
-        rotationmap.priors[param] = prior
+        # Consider adding an option for passing a user-defined function here? 
+        if type not in ['flat', 'gaussian', 'sin']:
+            raise ValueError("type must be 'flat', 'gaussian', or 'sin'.")        
+        rotationmap.priors[param] = {"type": type, "args": args}
 
+        
     def disk_coords(self, x0=0.0, y0=0.0, inc=0.0, PA=0.0, z0=0.0, psi=0.0,
                     r_cavity=0.0, r_taper=None, q_taper=None, w_i=0.0, w_r=1.0,
                     w_t=0.0, frame='cylindrical', **_):
