@@ -761,7 +761,7 @@ class rotationmap:
 
         # Warp parameters.
         params['w_i'] = params.pop('w_i', 0.0)
-        params['w_r'] = params.pop('w_r', 1.0)
+        params['w_r'] = params.pop('w_r', np.min([0.9*self.xaxis.max(), 1.0]))
         params['w_t'] = params.pop('w_t', 0.0)
         params['shadowed'] = params.pop('shadowed', False)
 
