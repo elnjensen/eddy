@@ -105,6 +105,9 @@ class rotationmap:
         self.shadowed_oversample = 2.0
         self.shadowed_method = 'nearest'
 
+        # Verbose mode to help with debugging:
+        self.verbose = False
+
     def fit_map(self, p0, params, r_min=None, r_max=None, optimize=True,
                 nwalkers=None, nburnin=300, nsteps=100, scatter=1e-3,
                 plots=None, returns=None, pool=None, emcee_kwargs=None,
@@ -594,7 +597,16 @@ class rotationmap:
         model = self._make_model(params) * 1e-3
         lnx2 = np.where(self.mask, np.power((self.data - model), 2), 0.0)
         lnx2 = -0.5 * np.sum(lnx2 * self.ivar)
-        return lnx2 if np.isfinite(lnx2) else -np.inf
+        if np.isfinite(lnx2):
+            return lnx2
+        else:
+            if self.verbose:
+                print("-np.inf for data likelihood for model params:")
+                for key in params.keys:
+                    print("{}: {}, ".format(key, params[key]), end='')
+
+            return -np.inf
+#        return lnx2 if np.isfinite(lnx2) else -np.inf
 
     def _ln_probability(self, theta, *params_in):
         """Log-probablility function."""
@@ -655,6 +667,9 @@ class rotationmap:
                     raise ValueError('Unknown type of prior: {}.'.format(prior['type']))
                                          
                 if not np.isfinite(lnp):
+                    if self.verbose:
+                        print("Param {} out of bounds in _ln_prior".format(key) +
+                                  " with val: {}.".format(params[key]))
                     return lnp
         return lnp
 
