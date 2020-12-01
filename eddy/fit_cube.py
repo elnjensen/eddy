@@ -602,7 +602,7 @@ class rotationmap:
         else:
             if self.verbose:
                 print("-np.inf for data likelihood for model params:")
-                for key in params.keys:
+                for key in params.keys():
                     print("{}: {}, ".format(key, params[key]), end='')
 
             return -np.inf
