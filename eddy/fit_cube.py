@@ -7,6 +7,8 @@ from astropy.io import fits
 from astropy.convolution import convolve, convolve_fft, Gaussian2DKernel
 import scipy.constants as sc
 import warnings
+import matplotlib.pyplot as plt
+
 
 warnings.filterwarnings("ignore")
 
@@ -62,6 +64,11 @@ class rotationmap:
                 self.error = 0.1 * abs((self.data - np.nanmedian(self.data)))
         self.error = np.where(np.isnan(self.error), 0.0, self.error)
 
+        # Add some params for saving plots:
+        self.saveplots = False
+        self.plotroot = 'eddy_'
+        self.plotext = '.pdf'
+        
         # Convert the data to [km/s].
         if unit.lower() == 'm/s':
             self.data *= 1e-3
@@ -266,14 +273,24 @@ class rotationmap:
             plots = []
         if 'mask' in plots:
             self.plot_data(ivar=self.ivar)
+            if self.saveplots:
+                plt.savefig(self.plotroot + 'mask' + self.plotext)
         if 'walkers' in plots:
             rotationmap._plot_walkers(sampler.chain.T, nburnin, labels)
+            if self.saveplots:
+                plt.savefig(self.plotroot + 'walkers' + self.plotext)
         if 'corner' in plots:
             rotationmap._plot_corner(samples, labels)
+            if self.saveplots:
+                plt.savefig(self.plotroot + 'corner' + self.plotext)
         if 'bestfit' in plots:
             self._plot_bestfit(medians, ivar=self.ivar)
+            if self.saveplots:
+                plt.savefig(self.plotroot + 'bestfit' + self.plotext)
         if 'residual' in plots:
             self._plot_residual(medians, ivar=self.ivar)
+            if self.saveplots:
+                plt.savefig(self.plotroot + 'residuals' + self.plotext)
 
         # Generate the output.
 
