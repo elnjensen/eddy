@@ -1345,6 +1345,9 @@ class rotationmap:
         ax = plt.subplots()[1]
         vkep = self._make_model(params) * 1e-3
         levels = np.nanpercentile(vkep, [2, 98])
+        # Adjust so that the middle of the range is at
+        # the best-fit vlsr:
+        levels -= np.average(levels) - params['vlsr']*1e-3
         levels = np.linspace(levels[0], levels[1], 30)
         im = ax.contourf(self.xaxis, self.yaxis, vkep, levels,
                          cmap=rotationmap.colormap(), extend='both')
