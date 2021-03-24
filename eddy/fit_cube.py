@@ -372,7 +372,7 @@ class rotationmap:
         Returns:
         Natural log of the prior probability.
         """
-        if p == 0:
+        if p == 0 or p < -90 or p > 90:
             return -np.inf
         else:
             return np.log(0.5*np.abs(np.sin(np.radians(p))))
