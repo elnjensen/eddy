@@ -609,6 +609,17 @@ class rotationmap:
     def _run_mcmc(self, p0, params, nwalkers, nburnin, nsteps, **kwargs):
         """Run the MCMC sampling. Returns the sampler."""
         p0 = self._random_p0(p0, kwargs.pop('scatter', 1e-3), nwalkers)
+        # Check to make sure that we don't have lots of walkers out
+        # of bounds to start:
+        inf_count = 0
+        for i in range(nwalkers):
+            model = rotationmap._populate_dictionary(p0[i,:], params)
+            lnp = self._ln_prior(model)
+            if not np.isfinite(lnp):
+                inf_count += 1
+        if inf_count > 0:
+            print("Warning: {:0.0f}% of the initial".format(100*inf_count/nwalkers) +
+                " positions give 0 probability; check priors.")
         sampler = emcee.EnsembleSampler(nwalkers, p0.shape[1],
                                         self._ln_probability,
                                         args=[params, np.nan],
