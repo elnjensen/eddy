@@ -253,8 +253,8 @@ class rotationmap:
             sampler = self._run_mcmc(p0=p0, params=params_tmp,
                                      nwalkers=nwalkers, nburnin=nburnin,
                                      nsteps=nsteps, **emcee_kwargs)
-            if type(params_tmp['PA']) is int:
-                sampler.chain[:, :, params_tmp['PA']] %= 360.0
+        #    if type(params_tmp['PA']) is int:
+        #        sampler.chain[:, :, params_tmp['PA']] %= 360.0
 
             # Split off the samples.
 
