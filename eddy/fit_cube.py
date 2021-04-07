@@ -1619,9 +1619,16 @@ class rotationmap:
             if samples.shape[0] != len(labels):
                 raise ValueError("Not correct number of labels.")
 
-        # Cycle through the plots.
+        n_plots = len(samples)
+        fig = plt.figure(figsize=(6, 4*n_plots))
+        if histogram:
+            fig.set_size_inches(1.37 * fig.get_figwidth(),
+                                fig.get_figheight(), forward=True)
+        axes = fig.subplots(n_plots, 1)
+        fig.tight_layout(pad=3, h_pad=3)
+        # Cycle through the subplots.
         for s, sample in enumerate(samples):
-            fig, ax = plt.subplots()
+            ax = axes[s]
             for walker in sample.T:
                 ax.plot(walker, alpha=0.1, color='k')
             ax.set_xlabel('Steps')
@@ -1632,8 +1639,6 @@ class rotationmap:
 
             # Include the histogram.
             if histogram:
-                fig.set_size_inches(1.37 * fig.get_figwidth(),
-                                    fig.get_figheight(), forward=True)
                 ax_divider = make_axes_locatable(ax)
                 bins = np.linspace(ax.get_ylim()[0], ax.get_ylim()[1], 50)
                 hist, _ = np.histogram(sample[nburnin:].flatten(), bins=bins,
