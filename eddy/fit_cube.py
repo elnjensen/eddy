@@ -1629,8 +1629,12 @@ class rotationmap:
         # Cycle through the subplots.
         for s, sample in enumerate(samples):
             ax = axes[s]
+            # Rasterize the walkers plot for a smaller file; setting
+            # the negative z-order for these lines leaves other
+            # parts as vectors, e.g. the labels
+            ax.set_rasterization_zorder(0)
             for walker in sample.T:
-                ax.plot(walker, alpha=0.1, color='k')
+                ax.plot(walker, alpha=0.1, color='k', zorder=-5)
             ax.set_xlabel('Steps')
             if labels is not None:
                 ax.set_ylabel(labels[s])
